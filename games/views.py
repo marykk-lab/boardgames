@@ -8,7 +8,9 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group
 from django.db import transaction
-
+from django.db.models import Sum, Count
+from django.utils.timezone import now, timedelta
+from django.db.models.functions import TruncDate
 @login_required
 def profile(request):
     orders = Order.objects.filter(user=request.user)
@@ -24,7 +26,26 @@ def is_admin(user):
 @login_required
 @user_passes_test(is_admin)
 def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
+    total_orders = Order.objects.count()
+    total_revenue = Order.objects.aggregate(Sum("total_price"))['total'] or 0
+    top_games = (
+        Order.objects.values('games__title').annotate(total_sold=Sum('count').order_by('-total_sold'))[:5]
+    )
+    today = now().date()
+    last_week = today - timedelta(days=6)
+    orders_per_day = (
+        Order.objects.filter(created_at__date__range=[last_week, today])
+        .annotate(day = TruncDate('created_at'))
+        .values('day')
+        .annotate(count=Count('id'))
+        .order_by('day')
+    )
+    return render(request, 'admin_dashboard.html', {
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'top_games': top_games,
+        'order_per_day': orders_per_day,
+    })
 
 @login_required
 @user_passes_test(is_admin)
@@ -68,7 +89,7 @@ def index(request):
     return render(request, 'home.html', {'is_admin':is_admin})
 
 def games_review(request):
-    games = Game.objects.
+    games = Game.objects.all()
     if request.user.is_authenticated:
         favorites = Favorite.objects.filter(user=request.user).values_list('game_id', flat=True)
     else:
