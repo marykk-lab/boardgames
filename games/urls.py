@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
-    path('', index, name='home'),
+    path('', games_review, name='home'),
     path('games_review/', games_review, name='games'),
     path('order_review/', order_review, name='order'),
     path('game/<int:id>/', game_details, name="game_details"),
@@ -18,7 +18,10 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page = "home"), name='logout'),
     path('profile/', profile, name='profile'),
     path('favorite_add/<int:game_id>/', favorite_add, name='favorite_add'),
-    path('admin_dashboard/', admin_dashboard, name='admin')
+    path('admin_dashboard/', admin_dashboard, name='admin'),
+    path('admin_dashboard/game_add', add_new_game, name='game_add'),
+    path('admin_dashboard/assign_group', assign_user_to_group, name='assign_group'),
+    path('admin_dashboard/game_remove', remove_game, name='game_remove')
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

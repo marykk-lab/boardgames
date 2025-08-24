@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Game, Order, Favorite
-from .forms import OrderForm, GameForm, SignUpForm
+from .forms import *
 from .cart import Cart
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -51,13 +51,37 @@ def admin_dashboard(request):
 @user_passes_test(is_admin)
 def add_new_game(request):
     if request.method == 'POST':
-        form = Game(request.POST)
+        form = GameForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('games_list')
+            return redirect('game_add')
     else:
         form = GameForm()
     return render(request, 'add_game.html', {'form': form})
+
+@login_required
+@user_passes_test(is_admin)
+def assign_user_to_group(request):
+    if request.method == 'POST':
+        form = UserGroupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin')
+    else:
+        form = UserGroupForm()
+    return render(request, 'assign_group.html', {'form': form})
+
+@login_required
+@user_passes_test(is_admin)
+def remove_game(request):
+    if request.method == 'POST':
+        form = GameDeleteForm(request.POST)
+        if form.is_valid():
+            form.delete()
+            return redirect('admin')
+    else:
+        form = GameDeleteForm()
+    return render(request, 'remove_game.html', {'form': form})
 
 def favorite_add(request, game_id):
     if request.method == 'POST':
@@ -90,11 +114,15 @@ def index(request):
 
 def games_review(request):
     games = Game.objects.all()
+<<<<<<< HEAD
+=======
+    is_admin = request.user.groups.filter(name='Admin').exists()
+>>>>>>> fc6849ff4d15ebc32b04ce45bbd7e4ed1edcb63a
     if request.user.is_authenticated:
         favorites = Favorite.objects.filter(user=request.user).values_list('game_id', flat=True)
     else:
         favorites = []
-    return render(request, 'games_review.html', {'games': games, 'favorites':favorites})
+    return render(request, 'games_review.html', {'games': games, 'favorites':favorites, 'is_admin':is_admin})
 
 def order_review(request):
     cart = Cart(request)
