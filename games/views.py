@@ -27,9 +27,9 @@ def is_admin(user):
 @user_passes_test(is_admin)
 def admin_dashboard(request):
     total_orders = Order.objects.count()
-    total_revenue = Order.objects.aggregate(Sum("total_price"))['total'] or 0
+    total_revenue = Order.objects.aggregate(total = Sum("total_price"))['total'] or 0
     top_games = (
-        Order.objects.values('games__title').annotate(total_sold=Sum('count').order_by('-total_sold'))[:5]
+        Order.objects.values('games__title').annotate(total_sold=Sum('count')).order_by('-total_sold')[:5]
     )
     today = now().date()
     last_week = today - timedelta(days=6)
@@ -114,10 +114,7 @@ def index(request):
 
 def games_review(request):
     games = Game.objects.all()
-<<<<<<< HEAD
-=======
     is_admin = request.user.groups.filter(name='Admin').exists()
->>>>>>> fc6849ff4d15ebc32b04ce45bbd7e4ed1edcb63a
     if request.user.is_authenticated:
         favorites = Favorite.objects.filter(user=request.user).values_list('game_id', flat=True)
     else:

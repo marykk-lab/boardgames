@@ -7,63 +7,26 @@
     <title>Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<<<<<<< HEAD
 <body>
-    <h1>Admin Panel</h1>
-    {% if perms.app.can_add_game %}
-        <h2>You can add games</h2>
-    {% else %}
-        <h2>You cannot add games</h2>
-    {% endif %}
-=======
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
->>>>>>> fc6849ff4d15ebc32b04ce45bbd7e4ed1edcb63a
-
-    <div class="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md text-center">
-        <h1 class="text-2xl font-bold mb-6">Admin Panel</h1>
-
-        <div class="flex flex-col gap-4">
-            <a href="{% url 'game_add' %}" class="px-4 py-2 rounded border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition">
+    <div class="min-h-screen w-full bg-gray-800 p-12 text-center">
+        <h1 class="text-4xl font-bold mb-12 text-white">Admin Panel</h1>
+    
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <a href="{% url 'game_add' %}" class="px-6 py-4 rounded-xl border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition shadow-lg">
                 ➕ Add Game
             </a>
-            <a href="{% url 'assign_group' %}" class="px-4 py-2 rounded border border-green-400 text-green-400 hover:bg-green-400 hover:text-white transition">
+            <a href="{% url 'assign_group' %}" class="px-6 py-4 rounded-xl border border-green-400 text-green-400 hover:bg-green-400 hover:text-white transition shadow-lg">
                 👥 Assign Group
             </a>
-            <a href="{% url 'game_remove' %}" class="px-4 py-2 rounded border border-red-400 text-red-400 hover:bg-red-400 hover:text-white transition">
+            <a href="{% url 'game_remove' %}" class="px-6 py-4 rounded-xl border border-red-400 text-red-400 hover:bg-red-400 hover:text-white transition shadow-lg">
                 ❌ Remove Game
             </a>
-            <a href="{% url 'games' %}" class="px-4 py-2 rounded border border-white text-white hover:bg-white hover:text-gray-800 transition">
+            <a href="{% url 'games' %}" class="px-6 py-4 rounded-xl border border-white text-white hover:bg-white hover:text-gray-800 transition shadow-lg">
                 🛒 View Store
             </a>
         </div>
     </div>
-
-<<<<<<< HEAD
-    {% if perms.app.can_edit_game %}
-        <h2>You can edit games</h2>
-    {% else %}
-        <h2>You cannot edit games</h2>
-    {% endif %}
-
-    <ul>
-        <li>Total Orders: {{ total_orders }}</li>
-        <li>Total Revenue: {{ total_revenue }}</li>
-    </ul>
-    <h2>Top 5 games</h2>
-    <ol>
-        {% for game in top_games %}
-            <li>{{ game.title }} - {{ game.total_sales }} sales</li>
-        {% endfor %}
-    </ol>
-    <h3>Recent Orders</h3>
-    <ul>
-        {% for order in recent_orders %}
-            <li>Order ID: {{ order.id }}, Total Price: {{ order.total_price }}, Status: {{ order.status }}</li>
-        {% endfor %}
-
+    
+    
 </body>
 </html>
-=======
-</body>
-</html>
->>>>>>> fc6849ff4d15ebc32b04ce45bbd7e4ed1edcb63a
