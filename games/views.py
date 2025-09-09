@@ -193,5 +193,4 @@ def cart_update_quantity(request, game_id):
     game = get_object_or_404(Game, id = game_id)
     cart.update_quantity(game, quantity)
     new_total_price = cart.get_total_price()
-    return redirect("cart_detail")
-    #return JsonResponse({"new_total_price":new_total_price})
+    return JsonResponse({"new_total_price":new_total_price})

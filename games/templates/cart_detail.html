@@ -68,15 +68,14 @@
             var quantity = form.find('.quantity-input').val();
 
             $.ajax({
-                url: '/cart/update/' + gameId + '/',
+                url: '/cart/update_quantity/' + gameId + '/',
                 method: 'POST',
                 data: {
                     'quantity': quantity,
                     'csrfmiddlewaretoken': form.find('[name="csrfmiddlewaretoken"]').val()
                 },
                 success: function(response) {
-                    $('#cart-item-' + gameId).find('td:nth-child(3)').text(quantity);
-                    $('#cart-item-' + gameId).find('td:nth-child(4)').text(response.new_total_price + ' $');
+                    $('#cart-item-' + gameId).find('.total-price-' + gameId).text(response.new_total_price + ' $');
                     $('.total-price').text(response.new_total_price + ' $');
                 }
             });
