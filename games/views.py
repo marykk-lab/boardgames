@@ -11,6 +11,14 @@ from django.db import transaction
 from django.db.models import Sum, Count
 from django.utils.timezone import now, timedelta
 from django.db.models.functions import TruncDate
+import stripe
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.urls import reverse
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 @login_required
 def profile(request):
     orders = Order.objects.filter(user=request.user)
@@ -82,6 +90,78 @@ def remove_game(request):
     else:
         form = GameDeleteForm()
     return render(request, 'remove_game.html', {'form': form})
+
+
+
+@login_required
+@require_POST
+def create_checkout_session(request):
+    cart = Cart(request)
+    if not cart.cart:
+        return redirect('cart_detail')
+
+    with transaction.atomic():
+        order = Order.objects.create(
+            user=request.user,
+            total_price=cart.get_total_price(),
+            count=sum(item["quantity"] for item in cart),
+            country=request.POST.get("country", "default"),
+            city=request.POST.get("city", "default"),
+            address=request.POST.get("address", "default"),
+            currency="usd",
+            has_paid=False,
+            games=list(cart.cart.values())[0]["game"],#test
+            stripe_customer_id="", #test
+            stripe_checkout_id="", #test
+            stripe_product_id="" #test
+        )
+
+    line_items = []
+    for item in cart:
+        game = item["game"]
+        line_items.append({
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {
+                    'name': game.title,
+                },
+                'unit_amount': int(game.price * 100),
+            },
+            'quantity': item["quantity"],
+        })
+
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        success_url=settings.DOMAIN + reverse('payment_success') + '?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url=settings.DOMAIN + reverse('cart_detail'),
+        customer_email=request.user.email,
+        metadata={'order_id': order.id}
+    )
+
+
+    order.stripe_checkout_id = session.id
+    order.save()
+
+    return redirect(session.url, code=303)
+
+@login_required
+def payment_success(request):
+    session_id = request.GET.get("session_id")
+    session = stripe.checkout.Session.retrieve(session_id)
+
+    order_id = session.metadata.get("order_id")
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if not order.has_paid:
+        order.has_paid = True
+        order.status = "Pending"
+        order.save()
+
+    Cart(request).clear()
+
+    return render(request, "payment_success.html", {"order": order})
 
 def favorite_add(request, game_id):
     if request.method == 'POST':

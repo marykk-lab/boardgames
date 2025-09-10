@@ -55,6 +55,15 @@
         <form action="/games_review" class="mt-6">
             <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Back to shop</button>
         </form>
+          
+        <form action="{% url 'create_checkout_session' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit">Pay</button>
+        </form>
+
+        <form action="{% url 'order' %}">
+            <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
+        </form>
     </div>
 </body>
 </html>

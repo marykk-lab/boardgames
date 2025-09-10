@@ -21,7 +21,9 @@ urlpatterns = [
     path('admin_dashboard/', admin_dashboard, name='admin'),
     path('admin_dashboard/game_add', add_new_game, name='game_add'),
     path('admin_dashboard/assign_group', assign_user_to_group, name='assign_group'),
-    path('admin_dashboard/game_remove', remove_game, name='game_remove')
+    path('admin_dashboard/game_remove', remove_game, name='game_remove'),
+    path("create-checkout-session/", create_checkout_session, name="create_checkout_session"),
+    path("payment-success/", payment_success, name="payment_success"),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

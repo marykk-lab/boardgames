@@ -23,10 +23,13 @@ class Game(models.Model):
 class Order(models.Model):
     STATUS_CHOICES = (
         ('Pending', 'В обработке'),
-        ('shipped', 'Отправлен'),
+        ('Shipped', 'Отправлен'),
         ('Delivered', 'Доставлено'),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    stripe_customer_id = models.CharField(max_length=255,blank=True, null=True)
+    stripe_checkout_id = models.CharField(max_length=255, blank=True, null=True)
+    stripe_product_id = models.CharField(max_length=255, blank=True, null=True)
     games = models.ForeignKey(Game, on_delete=models.CASCADE)
     count = models.PositiveIntegerField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -35,6 +38,14 @@ class Order(models.Model):
     country = models.CharField(max_length=100, default='default')
     city = models.CharField(max_length=100, default='default')
     address = models.CharField(max_length=100, default='default')
+    currency = models.CharField(max_length=3, default='usd')
+    has_paid = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.games} - Paid: {self.has_paid}"
+
+class UserPayment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -101,6 +102,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
+DOMAIN = 'http://localhost:8000'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
