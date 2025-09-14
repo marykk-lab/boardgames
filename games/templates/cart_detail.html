@@ -27,7 +27,7 @@
                     {% for item in cart %}
                     <tr id="cart-item-{{ item.game.id }}" class="border-b border-gray-700">
                         <td class="py-2 px-4">{{ item.title }}</td>
-                        <td class="py-2 px-4">{{ item.price }} $</td>
+                        <td class="py-2 px-4">{{ item.price }}$</td>
                         <td class="py-2 px-4">
                             <form class="update-quantity-form flex items-center gap-2" method="post" data-game-id="{{ item.game.id }}">
                                 {% csrf_token %}
@@ -52,18 +52,20 @@
             <p class="text-gray-400">Your cart is empty.</p>
         {% endif %}
 
-        <form action="/games_review" class="mt-6">
-            <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Back to shop</button>
-        </form>
-          
-        <form action="{% url 'create_checkout_session' %}" method="POST">
-            {% csrf_token %}
-            <button type="submit">Pay</button>
-        </form>
-
-        <form action="{% url 'order' %}">
-            <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Submit</button>
-        </form>
+        <div class="flex justify-between gap-4 mt-6">
+            <form action="/games_review">
+                <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded w-full">
+                    Back to shop
+                </button>
+            </form>
+        
+            <form action="{% url 'order' %}">
+                <button type="submit" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded w-full">
+                    Submit
+                </button>
+            </form>
+        </div>
+        
     </div>
 </body>
 </html>

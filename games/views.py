@@ -205,36 +205,45 @@ def order_review(request):
     cart = Cart(request)
     if not cart.cart:
         return redirect('cart_detail')
+    items_list = []
+    for item in cart:
+        game = item["game"]
+        items_list.append({
+            "title": game.title,
+            "quantity": item["quantity"],
+            "price": game.price
+        })
+    total_price = cart.get_total_price()
     
-    if request.method == "POST":
-        form = OrderForm(request.POST)
-        if form.is_valid():
-            with transaction.atomic():
-                order = form.save(commit=False)
-                order.user = request.user
-                order.total_price = cart.get_total_price()
-                order.count = sum(item["quantity"] for item in cart) #
-                cart.clear()
-
-                for item in cart:
-                    game = item["game"]
-                    quantity = item["quantity"]
-                    if game.count < quantity:
-                        return render(request, 'order_error.html')
-                    game.count -= quantity
-                    game.save()
-
-                    cart.clear()
-                    return render(request, "order_success.html", {'order':order})
-    else:
-        form = OrderForm(
-            initial={
-                "user": request.user,
-                "total_price": cart.get_total_price(),
-                "count": sum(item["quantity"] for item in cart),
-            }
-        )
-    return render(request, 'order_review.html', {'form': form, 'cart':cart})    
+    #if request.method == "POST":
+    #    form = OrderForm(request.POST)
+    #    if form.is_valid():
+    #        with transaction.atomic():
+    #            order = form.save(commit=False)
+    #            order.user = request.user
+    #            order.total_price = cart.get_total_price()
+    #            order.count = sum(item["quantity"] for item in cart) #
+    #            cart.clear()
+#
+    #            for item in cart:
+    #                game = item["game"]
+    #                quantity = item["quantity"]
+    #                if game.count < quantity:
+    #                    return render(request, 'order_error.html')
+    #                game.count -= quantity
+    #                game.save()
+#
+    #                cart.clear()
+    #                return render(request, "order_success.html", {'order':order})
+    #else:
+    #    form = OrderForm(
+    #        initial={
+    #            "user": request.user,
+    #            "total_price": cart.get_total_price(),
+    #            "count": sum(item["quantity"] for item in cart),
+    #        }
+    #    )
+    return render(request, 'order_review.html', {'cart':cart, 'items_list':items_list, 'total_price':total_price})    
 #   if request.method == 'POST':
 #       form = OrderForm(request.POST)
 #       if form.is_valid():

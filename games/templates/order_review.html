@@ -9,19 +9,54 @@
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-6">
 
     <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-xl">
-        <h1 class="text-3xl font-bold mb-6 text-center">🛒 Оформление заказа</h1>
+        <h1 class="text-3xl font-bold mb-6 text-center">🛒 Order Preview</h1>
 
-        <p class="text-lg mb-4 text-center">Спасибо за покупку! Здесь будет информация о заказе.</p>
+        <p class="text-lg mb-4 text-center">Here is information of your order:</p>
 
         <div class="border border-gray-700 rounded p-4 bg-gray-700 mb-4">
-            <p class="mb-2">Товар: <span class="font-semibold">Название игры</span></p>
-            <p class="mb-2">Количество: <span class="font-semibold">1</span></p>
-            <p>Сумма: <span class="font-semibold">99 $</span></p>
+
+
+            <table class="w-full text-left text-sm text-gray-300">
+                <thead class="bg-gray-600 text-gray-100 uppercase text-xs">
+                    <tr>
+                        <th class="px-4 py-3">Game Title</th>
+                        <th class="px-4 py-3">Quantity</th>
+                        <th class="px-4 py-3">Price per Item</th>
+                        <th class="px-4 py-3">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-600">
+                    {% for item in cart %}
+                    <tr class="hover:bg-gray-600 transition">
+                        <td class="px-4 py-3">{{ item.title }}</td>
+                        <td class="px-4 py-3">{{ item.quantity }}</td>
+                        <td class="px-4 py-3">${{ item.price }}</td>
+                        <td class="px-4 py-3">${{ item.total_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+
+            <div class="text-right mt-4 text-lg font-semibold text-white">
+                Total: ${{ cart.get_total_price }}
+            </div>
+            
         </div>
 
-        <button class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition">
-            Подтвердить заказ
-        </button>
+        <form action="{% url 'create_checkout_session' %}" method="POST">
+            {% csrf_token %}
+            <button class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition">
+                Submit order
+            </button>
+        </form>
+        
+        <form action="/cart">
+            <button class="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded">
+                Back
+            </button>
+        </form>
+        
     </div>
 
 </body>
