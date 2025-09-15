@@ -13,52 +13,85 @@
         <div class="flex items-center gap-2">
             {% if user.is_authenticated %}
                 <span class="text-white mr-2">Hi, <strong>{{ user.username }}</strong>!</span>
-    
-                <a href="{% url 'profile' %}" class="px-3 py-1 rounded border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition">
-                    Profile
-                </a>
-    
+                <a href="{% url 'profile' %}" class="px-3 py-1 rounded border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition">Profile</a>
                 <form method="post" action="{% url 'logout' %}" class="inline">
                     {% csrf_token %}
-                    <button type="submit" class="px-3 py-1 rounded border border-red-400 text-red-400 hover:bg-red-400 hover:text-white transition">
-                        Logout
-                    </button>
+                    <button type="submit" class="px-3 py-1 rounded border border-red-400 text-red-400 hover:bg-red-400 hover:text-white transition">Logout</button>
                 </form>
-    
                 {% if is_admin %}
-                    <a href="{% url 'admin' %}" class="px-3 py-1 rounded border border-white text-white hover:bg-white hover:text-gray-800 transition">
-                        Admin Panel
-                    </a>
+                    <a href="{% url 'admin' %}" class="px-3 py-1 rounded border border-white text-white hover:bg-white hover:text-gray-800 transition">Admin Panel</a>
                 {% endif %}
             {% else %}
-                <a href="{% url 'login' %}" class="px-3 py-1 rounded border border-green-400 text-green-400 hover:bg-green-400 hover:text-white transition">
-                    Login
-                </a>
-                <a href="{% url 'register' %}" class="px-3 py-1 rounded border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition">
-                    Register
-                </a>
+                <a href="{% url 'login' %}" class="px-3 py-1 rounded border border-green-400 text-green-400 hover:bg-green-400 hover:text-white transition">Login</a>
+                <a href="{% url 'register' %}" class="px-3 py-1 rounded border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition">Register</a>
             {% endif %}
         </div>
-    
-        <a href="/cart" class="px-4 py-2 rounded border border-blue-600 text-white hover:bg-blue-700 transition">
-            🛒 Cart
-        </a>
+        <a href="/cart" class="px-4 py-2 rounded border border-blue-600 text-white hover:bg-blue-700 transition">🛒 Cart</a>
     </div>
     
-
     <h2 class="text-3xl font-bold mb-6">Our Games</h2>
 
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {% for game in games %}
         <div class="bg-gray-800 p-4 rounded-lg shadow-lg text-center">
             <img src="{{ game.image.url }}" alt="{{ game.title }}" class="w-full h-40 object-cover rounded mb-3">
             <h3 class="text-xl font-semibold mb-2">{{ game.title }}</h3>
             <p class="mb-2">💵 Price: {{ game.price }} $</p>
-            <a href="{% url 'game_details' game.id %}" class="inline-block mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                Details
-            </a>
+            <a href="{% url 'game_details' game.id %}" class="inline-block mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Details</a>
+            <button type="button" data-game-id="{{ game.id }}" class="favorite-btn text-xl text-red-500 hover:text-red-700 transition">
+                {% if game.id in favorites %}
+                    ❤️
+                {% else %}
+                    ♡
+                {% endif %}
+            </button>
         </div>
         {% endfor %}
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function getCSRFToken() {
+            return document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        }
+
+        document.querySelectorAll('.favorite-btn').forEach(button => {
+            button.addEventListener('click', function (event) {
+                const gameId = this.dataset.gameId;
+                const csrfToken = getCSRFToken();
+
+                if (!csrfToken) {
+                    console.warn("CSRF token not found in DOM.");
+                    return;
+                }
+
+                fetch(`/favorites/add/${gameId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({}),
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response wasnt ok');
+                    return response.json();
+                })
+                .then(data => { 
+                    if (data.is_favorite !== undefined) {
+                        this.textContent = data.is_favorite ? '❤️' : '♡';
+                    } else if (data.error) {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('AJAX Error:', error);
+                });
+            });
+        });
+    });
+    </script>
 </body>
 </html>

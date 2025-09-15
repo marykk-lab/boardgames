@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Game, Order, Favorite
+from .models import Game, Order, Favorite, OrderItem
 from .forms import *
 from .cart import Cart
 from django.http import JsonResponse
@@ -99,12 +99,12 @@ def create_checkout_session(request):
     cart = Cart(request)
     if not cart.cart:
         return redirect('cart_detail')
+
     form = OrderForm(request.POST)
     with transaction.atomic():
         order = Order.objects.create(
             user=request.user,
             total_price=cart.get_total_price(),
-            count=sum(item["quantity"] for item in cart),
             country=request.POST.get("country", "default"),
             city=request.POST.get("city", "default"),
             address=request.POST.get("address", "default"),
@@ -115,11 +115,15 @@ def create_checkout_session(request):
             zip=request.POST.get("zip", "default"),
             full_name=request.POST.get("full_name", "default"),
             has_paid=False,
-            games=list(cart.cart.values())[0]["game"],#test
-            stripe_customer_id="", #test
-            stripe_checkout_id="", #test
-            stripe_product_id="" #test
+            stripe_customer_id="",
+            stripe_checkout_id="",
+            stripe_product_id=""
         )
+
+        for item in cart:
+            game = item["game"]
+            quantity = item["quantity"]
+            OrderItem.objects.create(order=order, game=game, count=quantity)
 
     line_items = []
     for item in cart:
@@ -145,11 +149,11 @@ def create_checkout_session(request):
         metadata={'order_id': order.id}
     )
 
-
     order.stripe_checkout_id = session.id
     order.save()
 
     return redirect(session.url, code=303)
+
 
 @login_required
 def payment_success(request):
@@ -220,43 +224,7 @@ def order_review(request):
         })
     total_price = cart.get_total_price()
     
-    #if request.method == "POST":
-    #    form = OrderForm(request.POST)
-    #    if form.is_valid():
-    #        with transaction.atomic():
-    #            order = form.save(commit=False)
-    #            order.user = request.user
-    #            order.total_price = cart.get_total_price()
-    #            order.count = sum(item["quantity"] for item in cart) #
-    #            cart.clear()
-#
-    #            for item in cart:
-    #                game = item["game"]
-    #                quantity = item["quantity"]
-    #                if game.count < quantity:
-    #                    return render(request, 'order_error.html')
-    #                game.count -= quantity
-    #                game.save()
-#
-    #                cart.clear()
-    #                return render(request, "order_success.html", {'order':order})
-    #else:
-    #    form = OrderForm(
-    #        initial={
-    #            "user": request.user,
-    #            "total_price": cart.get_total_price(),
-    #            "count": sum(item["quantity"] for item in cart),
-    #        }
-    #    )
     return render(request, 'order_review.html', {'cart':cart, 'items_list':items_list, 'total_price':total_price})    
-#   if request.method == 'POST':
-#       form = OrderForm(request.POST)
-#       if form.is_valid():
-#           order = form.save()
-#           return redirect('order_success')
-#   else:
-#       form = OrderForm()
-#   return render(request, 'order_review.html', {'form': form})
 
 def deliverty_details(request):
     return render(request, 'delivery_details.html')

@@ -17,7 +17,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name = "login.html"), name='login'),
     path('logout/', LogoutView.as_view(next_page = "home"), name='logout'),
     path('profile/', profile, name='profile'),
-    path('favorite_add/<int:game_id>/', favorite_add, name='favorite_add'),
+    path('favorites/add/<int:game_id>/', favorite_add, name='favorite_add'),
     path('admin_dashboard/', admin_dashboard, name='admin'),
     path('admin_dashboard/game_add', add_new_game, name='game_add'),
     path('admin_dashboard/assign_group', assign_user_to_group, name='assign_group'),

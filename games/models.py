@@ -30,8 +30,6 @@ class Order(models.Model):
     stripe_customer_id = models.CharField(max_length=255,blank=True, null=True)
     stripe_checkout_id = models.CharField(max_length=255, blank=True, null=True)
     stripe_product_id = models.CharField(max_length=255, blank=True, null=True)
-    games = models.ForeignKey(Game, on_delete=models.CASCADE)
-    count = models.PositiveIntegerField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -47,7 +45,25 @@ class Order(models.Model):
     has_paid = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username} - {self.games} - Paid: {self.has_paid}"
+        items = self.orderitem_set.all()
+        if items:
+            return f"{self.user.username} - {items[0].game.title} (+{items.count()-1} more) - Paid: {self.has_paid}"
+        return f"{self.user.username} - No items - Paid: {self.has_paid}"
+    def games_summary(self):
+        return ", ".join(
+            f"{item.game.title} x{item.count}" for item in self.orderitem_set.all()
+        )
+    games_summary.short_description = "Games Ordered"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey('Order', on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    count = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.game.title} x{self.count}"
+
 
 class UserPayment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
