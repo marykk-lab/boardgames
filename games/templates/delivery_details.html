@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-xl w-full bg-gray-800 p-6 rounded-2xl shadow-lg space-y-6">
+        <h2 class="text-3xl font-bold mb-4 text-center">Delivery Details</h2>
+
+        <form action="{% url 'create_checkout_session' %}" method="POST" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label for="full_name" class="block text-sm font-semibold mb-1">Full Name</label>
+                <input type="text" id="full_name" name="full_name" required
+                       class="w-full bg-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-semibold mb-1">Email Address</label>
+                <input type="email" id="email" name="email" required
+                       class="w-full bg-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label for="phone" class="block text-sm font-semibold mb-1">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required
+                       class="w-full bg-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label for="address" class="block text-sm font-semibold mb-1">Street Address</label>
+                <input type="text" id="address" name="address" required
+                       class="w-full bg-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="city" class="block text-sm font-semibold mb-1">City</label>
+                    <input type="text" id="city" name="city" required
+                           class="w-full bg-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="zip" class="block text-sm font-semibold mb-1">ZIP / Postal Code</label>
+                    <input type="text" id="zip" name="zip" required
+                           class="w-full bg-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div>
+                <label for="country" class="block text-sm font-semibold mb-1">Country</label>
+                <input type="text" id="country" name="country" required
+                       class="w-full bg-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label for="notes" class="block text-sm font-semibold mb-1">Order Notes (optional)</label>
+                <textarea id="notes" name="notes" rows="3"
+                          class="w-full bg-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <div class="flex space-x-4 pt-4">
+                <button type="submit"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
+                    Confirm Order
+                </button>
+                <a href="/order_review" 
+                   class="w-full text-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

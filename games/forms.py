@@ -14,13 +14,14 @@ class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = [
-            "user",
-            #"games", #is this correct?
-            "count",
-            "total_price",
-            "country",
-            "city",
+            "full_name",
+            "email",
+            "phone",
             "address",
+            "city",
+            "zip",
+            "country",
+            "notes"
         ]
 class GameForm(forms.ModelForm):
     class Meta:

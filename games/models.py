@@ -39,6 +39,11 @@ class Order(models.Model):
     city = models.CharField(max_length=100, default='default')
     address = models.CharField(max_length=100, default='default')
     currency = models.CharField(max_length=3, default='usd')
+    email = models.CharField(max_length=100, default='default')
+    phone = models.CharField(max_length=15, default='default')
+    notes = models.CharField(max_length=100, default='default')
+    zip = models.CharField(max_length=10, default='default')
+    full_name = models.CharField(max_length=30, default='default')
     has_paid = models.BooleanField(default=False)
 
     def __str__(self):

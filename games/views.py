@@ -99,7 +99,7 @@ def create_checkout_session(request):
     cart = Cart(request)
     if not cart.cart:
         return redirect('cart_detail')
-
+    form = OrderForm(request.POST)
     with transaction.atomic():
         order = Order.objects.create(
             user=request.user,
@@ -109,6 +109,11 @@ def create_checkout_session(request):
             city=request.POST.get("city", "default"),
             address=request.POST.get("address", "default"),
             currency="usd",
+            email=request.POST.get("email", "default"),
+            phone=request.POST.get("phone", "default"),
+            notes=request.POST.get("notes", "default"),
+            zip=request.POST.get("zip", "default"),
+            full_name=request.POST.get("full_name", "default"),
             has_paid=False,
             games=list(cart.cart.values())[0]["game"],#test
             stripe_customer_id="", #test
@@ -252,6 +257,9 @@ def order_review(request):
 #   else:
 #       form = OrderForm()
 #   return render(request, 'order_review.html', {'form': form})
+
+def deliverty_details(request):
+    return render(request, 'delivery_details.html')
 
 def game_details(request, id):
     try:
