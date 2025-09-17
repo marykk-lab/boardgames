@@ -36,9 +36,9 @@ def is_admin(user):
 def admin_dashboard(request):
     total_orders = Order.objects.count()
     total_revenue = Order.objects.aggregate(total = Sum("total_price"))['total'] or 0
-    top_games = (
-        Order.objects.values('games__title').annotate(total_sold=Sum('count')).order_by('-total_sold')[:5]
-    )
+    #top_games = (
+    #    Order.objects.values('games__title').annotate(total_sold=Sum('count')).order_by('-total_sold')[:5]
+    #)
     today = now().date()
     last_week = today - timedelta(days=6)
     orders_per_day = (
@@ -51,7 +51,7 @@ def admin_dashboard(request):
     return render(request, 'admin_dashboard.html', {
         'total_orders': total_orders,
         'total_revenue': total_revenue,
-        'top_games': top_games,
+        #'top_games': top_games,
         'order_per_day': orders_per_day,
     })
 
@@ -91,7 +91,36 @@ def remove_game(request):
         form = GameDeleteForm()
     return render(request, 'remove_game.html', {'form': form})
 
+@login_required
+@user_passes_test(is_admin)
+def view_orders(request):
+    orders = Order.objects.all()
+    return render(request, "view_orders_admin.html", {'orders': orders}) 
 
+@login_required
+@user_passes_test(is_admin)
+def order_details_admin(request, id):
+    try:
+        order = get_object_or_404(Order, pk=id)
+        status = order.status
+        form = OrderStatusForm(request.POST, instance=order)
+        return render(request, 'order_details_admin.html', {'order': order, 'form': form, 'status': status})
+    except Game.DoesNotExist:
+        return render(request, 'order_details_admin.html', {'order': None})
+
+@login_required
+@user_passes_test(is_admin)
+def change_order_status(request, id):
+    order = get_object_or_404(Order, pk=id)
+    if request.method == 'POST':
+            form = OrderStatusForm(request.POST, instance=order)
+            if form.is_valid():
+                form.save()
+                label = order.status_label()
+                return JsonResponse({'order_id':id, 'status_label': label})
+            else:
+                form = OrderStatusForm(instance=order)
+    return JsonResponse({'error':'Invalid request'}, status=400)
 
 @login_required
 @require_POST

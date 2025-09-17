@@ -49,3 +49,13 @@ class GameDeleteForm(forms.Form):
     def delete(self):
         game = self.cleaned_data['game']
         game.delete()
+
+class OrderStatusForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['status']
+        widgets = {
+            'status': forms.Select(attrs={
+                'class': 'bg-gray-800 text-white border border-gray-600 rounded px-2 py-1'
+            })
+        }

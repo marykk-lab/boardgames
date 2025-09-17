@@ -22,9 +22,9 @@ class Game(models.Model):
         
 class Order(models.Model):
     STATUS_CHOICES = (
-        ('Pending', 'В обработке'),
-        ('Shipped', 'Отправлен'),
-        ('Delivered', 'Доставлено'),
+        ('Pending', 'Pending'),
+        ('Shipped', 'Shipped'),
+        ('Delivered', 'Delivered'),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     stripe_customer_id = models.CharField(max_length=255,blank=True, null=True)
@@ -53,6 +53,13 @@ class Order(models.Model):
         return ", ".join(
             f"{item.game.title} x{item.count}" for item in self.orderitem_set.all()
         )
+    def status_label(self):
+        status_map = {
+            'Pending': '🕓 Pending',
+            'Shipped': '📦 Shipped',
+            'Delivered': '✅ Delivered',
+        }
+        return status_map.get(self.status, self.status)
     games_summary.short_description = "Games Ordered"
 
 

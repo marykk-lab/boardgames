@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order #{{ order.id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-6">
+    {% block content %}
+    <div class="max-w-4xl mx-auto bg-gray-800 rounded-2xl p-6 shadow-lg space-y-6">
+        <h1 class="text-3xl font-bold border-b border-gray-700 pb-4">🧾 Order #{{ order.id }}</h1>
+
+        <section class="space-y-2">
+            <h2 class="text-xl font-semibold text-gray-200">👤 Customer Info</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-300">
+                <p><span class="font-semibold">Username:</span> {{ order.user.username }}</p>
+                <p><span class="font-semibold">Full Name:</span> {{ order.full_name }}</p>
+                <p><span class="font-semibold">Email:</span> {{ order.email }}</p>
+                <p><span class="font-semibold">Phone:</span> {{ order.phone }}</p>
+            </div>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-xl font-semibold text-gray-200">📦 Shipping Address</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-300">
+                <p><span class="font-semibold">Country:</span> {{ order.country }}</p>
+                <p><span class="font-semibold">City:</span> {{ order.city }}</p>
+                <p><span class="font-semibold">Address:</span> {{ order.address }}</p>
+                <p><span class="font-semibold">ZIP Code:</span> {{ order.zip }}</p>
+            </div>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-xl font-semibold text-gray-200">🎮 Ordered Games</h2>
+            <ul class="list-disc list-inside text-gray-300 pl-4">
+                {% for item in order.orderitem_set.all %}
+                    <li>{{ item.game.title }} &times; {{ item.count }}</li>
+                {% empty %}
+                    <li>No items in this order.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-xl font-semibold text-gray-200">📄 Order Details</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-300">
+                <p>
+                    <span class="font-semibold">Status:</span>
+                    <span id="status-{{ order.id }}">
+                        {{ order.status_label }}
+                    </span>
+                </p>
+                <form method="post" class="flex items-center gap-2 status-form" data-order-id="{{ order.id }}">
+                    {% csrf_token %}
+                    {{ form.status }}
+                    <button type="submit"
+                        class="update-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 rounded text-sm">
+                        Update
+                    </button>
+                </form>
+                <p>
+                    <span class="font-semibold">Paid:</span>
+                    {% if order.has_paid %}
+                        <span class="text-green-400">Yes</span>
+                    {% else %}
+                        <span class="text-red-400">No</span>
+                    {% endif %}
+                </p>
+                <p><span class="font-semibold">Total Price:</span> {{ order.total_price }} {{ order.currency|upper }}</p>
+                <p><span class="font-semibold">Created At:</span> {{ order.created_at|date:"Y-m-d H:i" }}</p>
+            </div>
+            <p class="mt-2 text-gray-400"><span class="font-semibold">Notes:</span> {{ order.notes }}</p>
+        </section>
+
+        <div class="pt-4">
+            <a href="{% url 'view_orders' %}" class="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">
+                ⬅ Back to Orders
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.status-form').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();  // prevent full page reload
+
+                const orderId = this.dataset.orderId;
+                const status = this.querySelector('select[name="status"]').value;
+                const csrfToken = this.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+                fetch(`/change_status/${orderId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: `status=${encodeURIComponent(status)}`
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Request failed');
+                    return response.json();
+                })
+                .then(data => {
+                    const statusDisplay = document.getElementById(`status-${orderId}`);
+                    statusDisplay.textContent = data.status_label;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+</body>
+</html>

@@ -24,7 +24,10 @@ urlpatterns = [
     path('admin_dashboard/game_remove', remove_game, name='game_remove'),
     path("create-checkout-session/", create_checkout_session, name="create_checkout_session"),
     path("payment-success/", payment_success, name="payment_success"),
-    path("order_review/delivery/", deliverty_details, name='delivery')
+    path("order_review/delivery/", deliverty_details, name='delivery'),
+    path("admin_dashboard/view_orders/", view_orders, name='view_orders'),
+    path("admin_dashboard/order_details/<int:id>/", order_details_admin, name='order_details'),
+    path("change_status/<int:id>/", change_order_status, name='change_status'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
